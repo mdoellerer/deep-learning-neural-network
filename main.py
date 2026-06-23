@@ -1,3 +1,7 @@
+from keras import ops
+from keras.datasets import mnist
+from keras import optimizers
+
 import os
 import tensorflow as tf
 
@@ -5,13 +9,9 @@ from batch_generator import BatchGenerator
 from naive_dense import NaiveDense
 from naive_sequential import NaiveSequential
 
-from keras import ops
-from keras.datasets import mnist
-from keras import optimizers
-
 os.environ["KERAS_BACKEND"] = "tensorflow"
-
 optimizer = optimizers.SGD(learning_rate=1e-3)
+
 
 # Loading data from MNIST dataset
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
