@@ -6,25 +6,28 @@ import os
 import tensorflow as tf
 
 from batch_generator import BatchGenerator
-from naive_dense import NaiveDense
-from naive_sequential import NaiveSequential
+from naivemodel import NaiveSequential, NaiveDense
+
 
 os.environ["KERAS_BACKEND"] = "tensorflow"
 optimizer = optimizers.SGD(learning_rate=1e-3)
 
-
 # Loading data from MNIST dataset
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
+train_images = train_images.reshape((60000, 28 * 28))
+train_images = train_images.astype("float32") / 255
+test_images = test_images.reshape((10000, 28 * 28))
+test_images = test_images.astype("float32") / 255
+
 # We are creating a naive-implementation of a Keras model, instead of compiling one
-model = NaiveSequential(
+naive_model = NaiveSequential(
     [
         NaiveDense(input_size=28 * 28, output_size=512, activation=ops.relu),
         NaiveDense(input_size=512, output_size=10, activation=ops.softmax),
     ]
 )
-assert len(model.weights) == 4
-
+assert len(naive_model.weights) == 4
 
 def update_weights_manually(gradients, weights):
     learning_rate = 1e-3
@@ -47,13 +50,13 @@ def one_training_step(model, images_batch, labels_batch):
     update_weights_manually(gradients, model.weights)
     return average_loss
 
-def accuracy(model, test_images, test_labels):
-    predictions = model(test_images)
+def accuracy(model, images, labels):
+    predictions = model(images)
     predicted_labels = ops.argmax(predictions, axis=1)
-    matches = predicted_labels == test_labels
+    matches = predicted_labels == labels
     print(f"accuracy: {ops.mean(matches):.2f}")
 
-def fit(model, images, labels, epochs, batch_size=128):
+def fit(model, images, labels, epochs, batch_size : int =128):
     for epoch_counter in range(epochs):
         print(f"Epoch {epoch_counter + 1}")
         batch_generator = BatchGenerator(images, labels)
@@ -64,11 +67,7 @@ def fit(model, images, labels, epochs, batch_size=128):
                 print(f"loss at batch {batch_counter + 1}: {loss:.2f}")
         accuracy(model, test_images, test_labels)
 
-train_images = train_images.reshape((60000, 28 * 28))
-train_images = train_images.astype("float32") / 255
-test_images = test_images.reshape((10000, 28 * 28))
-test_images = test_images.astype("float32") / 255
-
+# main call
 if __name__ == "__main__":
-    fit(model, train_images, train_labels, epochs=5, batch_size=128)
-    fit(model, train_images, train_labels, epochs=5, batch_size=128)
+    fit(naive_model, train_images, train_labels, epochs=5, batch_size=128)
+    fit(naive_model, train_images, train_labels, epochs=5, batch_size=128)
