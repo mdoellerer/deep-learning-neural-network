@@ -3,12 +3,17 @@ from keras.datasets import mnist
 from keras import optimizers
 
 import os
+import logging
 import tensorflow as tf
 
 from batch_generator import BatchGenerator
 from naivemodel import NaiveSequential, NaiveDense
 
-
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 os.environ["KERAS_BACKEND"] = "tensorflow"
 optimizer = optimizers.SGD(learning_rate=1e-3)
 
@@ -28,6 +33,8 @@ naive_model = NaiveSequential(
     ]
 )
 assert len(naive_model.weights) == 4
+
+g_epoch_counter = 0
 
 def update_weights_manually(gradients, weights):
     learning_rate = 1e-3
@@ -54,20 +61,20 @@ def accuracy(model, images, labels):
     predictions = model(images)
     predicted_labels = ops.argmax(predictions, axis=1)
     matches = predicted_labels == labels
-    print(f"accuracy: {ops.mean(matches):.2f}")
+    return ops.mean(matches)
 
 def fit(model, images, labels, epochs, batch_size : int =128):
     for epoch_counter in range(epochs):
-        print(f"Epoch {epoch_counter + 1}")
+        logging.debug(f"Epoch {epoch_counter + 1}")
         batch_generator = BatchGenerator(images, labels)
         for batch_counter in range(batch_generator.num_batches):
             images_batch, labels_batch = batch_generator.next()
             loss = one_training_step(model, images_batch, labels_batch)
             if batch_counter % 100 == 0:
-                print(f"loss at batch {batch_counter + 1}: {loss:.2f}")
-        accuracy(model, test_images, test_labels)
+                logging.debug(f"loss at batch {batch_counter + 1}: {loss:.2f}")
+        acc = accuracy(model, test_images, test_labels)
+        logging.info(f"Accuracy for Epoch {epoch_counter + 1}: {acc:.2f}")
 
 # main call
 if __name__ == "__main__":
-    fit(naive_model, train_images, train_labels, epochs=5, batch_size=128)
-    fit(naive_model, train_images, train_labels, epochs=5, batch_size=128)
+    fit(naive_model, train_images, train_labels, epochs=10, batch_size=128)
