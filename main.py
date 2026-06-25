@@ -1,8 +1,12 @@
+import os
+# Sets the environment variable from within the Python runtime
+# Must be set BEFORE importing keras
+os.environ["KERAS_BACKEND"] = "tensorflow"
+
 from keras import ops
 from keras.datasets import mnist
 from keras import optimizers
 
-import os
 import logging
 import tensorflow as tf
 
@@ -14,7 +18,7 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-os.environ["KERAS_BACKEND"] = "tensorflow"
+
 optimizer = optimizers.SGD(learning_rate=1e-3)
 
 # Loading data from MNIST dataset
