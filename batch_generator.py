@@ -1,5 +1,6 @@
 import math
 
+
 class BatchGenerator:
     def __init__(self, images, labels, batch_size=128):
         assert len(images) == len(labels)

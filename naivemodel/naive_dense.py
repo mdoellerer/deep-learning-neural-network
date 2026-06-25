@@ -1,6 +1,7 @@
 import keras
 from keras import ops
 
+
 class NaiveDense:
     def __init__(self, input_size, output_size, activation=None):
         self.activation = activation
